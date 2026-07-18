@@ -1,0 +1,25 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Local database and runtime data
+server/data/*.db
+server/data/*.db-shm
+server/data/*.db-wal
+
+# Local env / secrets
+.env
+.env.*
+
+# Temporary local launch helpers can stay if you want them in repo.
+# If you do not want to upload them, uncomment below:
+# 启动个人消费管理平台.cmd
+# 启动公网分享.cmd
