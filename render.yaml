@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: expense-planner-app
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: python -m pip install --user -r server/requirements.txt && npm install --prefix server
+    startCommand: node server/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.18.0
+      - key: DB_DIR
+        value: /var/data
+    disk:
+      name: expense-planner-data
+      mountPath: /var/data
+      sizeGB: 1
