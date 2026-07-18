@@ -1,0 +1,13 @@
+{
+  "name": "expense-planner-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal expense management and savings planning backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
