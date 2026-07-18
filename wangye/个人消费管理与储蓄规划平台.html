@@ -1,0 +1,3453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人消费管理与储蓄规划平台</title>
+  <style>
+    :root {
+      --bg: #f4efe8;
+      --surface: rgba(255, 252, 247, 0.92);
+      --ink: #1f2933;
+      --muted: #6a7682;
+      --line: #e8dccd;
+      --brand: #c76b37;
+      --brand-deep: #9d4c22;
+      --accent: #1f6f78;
+      --good: #237a57;
+      --warn: #d97706;
+      --bad: #c2410c;
+      --shadow: 0 20px 50px rgba(71, 45, 27, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(199, 107, 55, 0.18), transparent 26%),
+        radial-gradient(circle at 100% 12%, rgba(31, 111, 120, 0.14), transparent 24%),
+        linear-gradient(180deg, #f8f1e7 0%, var(--bg) 42%, #ece2d6 100%);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    .glass,
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(232, 220, 205, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      margin-bottom: 24px;
+      width: 100%;
+    }
+
+    .hero-box {
+      border-radius: 34px;
+      width: 100%;
+      padding: 34px;
+      text-align: center;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(32px, 4vw, 54px);
+      line-height: 1.08;
+    }
+
+    .hero p,
+    .section-head p,
+    .soft-note {
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 16px auto 0;
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      border: 0;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: rgba(31, 111, 120, 0.1);
+      color: var(--accent);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+      border-radius: var(--radius-xl);
+      padding: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+    }
+
+    .brand small {
+      color: var(--muted);
+    }
+
+    .mobile-appbar,
+    .mobile-tabbar,
+    .mobile-bill-list {
+      display: none;
+    }
+
+    .mobile-appbar {
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      margin-bottom: 14px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 20px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .mobile-appbar-title strong {
+      display: block;
+      font-size: 16px;
+    }
+
+    .mobile-appbar-title span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mobile-icon-btn {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(232,220,205,0.88);
+      background: rgba(255,255,255,0.78);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .nav a,
+    .nav button {
+      padding: 12px 14px;
+      text-decoration: none;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(232,220,205,0.8);
+      font-size: 14px;
+      font-weight: 600;
+      color: inherit;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .sidebar-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .content {
+      display: grid;
+      gap: 20px;
+    }
+
+    .section {
+      display: grid;
+      gap: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .section-head p {
+      font-size: 14px;
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .dashboard-main,
+    .dashboard-side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .metric-sub {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-card {
+      border-radius: 24px;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 240, 0.98), rgba(253, 251, 247, 0.95)),
+        linear-gradient(135deg, rgba(199, 107, 55, 0.08), rgba(31, 111, 120, 0.08));
+      border: 1px solid rgba(232,220,205,0.9);
+    }
+
+    .account-spotlight {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(232,220,205,0.92);
+    }
+
+    .avatar-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .account-spotlight p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .status-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(111, 103, 92, 0.12);
+      color: #6f675c;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .status-balance {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 6px 0 10px;
+    }
+
+    .progress {
+      height: 12px;
+      border-radius: 999px;
+      background: #eee2d4;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--brand), #f0a167);
+    }
+
+    .status-mini-list,
+    .status-list,
+    .guide-list,
+    .records-log {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .status-mini-item,
+    .status-item,
+    .guide-step,
+    .record-log-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid rgba(232,220,205,0.92);
+    }
+
+    .status-mini-item strong,
+    .status-item strong,
+    .record-log-item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .status-item span {
+      display: block;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .time-text {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 0.9fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+      margin-bottom: 16px;
+    }
+
+    .filter-grid label {
+      font-size: 12px;
+    }
+
+    .mini-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .mini-summary-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid rgba(232,220,205,0.92);
+    }
+
+    .mini-summary-item strong {
+      display: block;
+      font-size: 20px;
+      margin-top: 6px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #ddcebc;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      color: var(--ink);
+      background: rgba(255,255,255,0.86);
+    }
+
+    textarea {
+      min-height: 118px;
+      resize: vertical;
+    }
+
+    .notice {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      line-height: 1.8;
+      font-size: 14px;
+      display: none;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice-good {
+      background: rgba(35,122,87,0.1);
+      border: 1px solid rgba(35,122,87,0.18);
+      color: var(--good);
+    }
+
+    .notice-bad {
+      background: rgba(194,65,12,0.1);
+      border: 1px solid rgba(194,65,12,0.18);
+      color: var(--bad);
+    }
+
+    .records-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    .records-table th,
+    .records-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(232,220,205,0.8);
+      text-align: left;
+    }
+
+    .records-table th {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .records-table .action-cell {
+      width: 88px;
+      text-align: right;
+    }
+
+    .table-link-btn {
+      border: 1px solid rgba(157, 91, 50, 0.24);
+      background: rgba(157, 91, 50, 0.08);
+      color: var(--brand-deep);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .table-link-btn:hover {
+      background: rgba(157, 91, 50, 0.14);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    .mobile-bill-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mobile-bill-card {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(232,220,205,0.92);
+    }
+
+    .mobile-bill-top,
+    .mobile-bill-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .mobile-bill-top {
+      margin-bottom: 10px;
+    }
+
+    .mobile-bill-date {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .mobile-bill-amount {
+      font-size: 18px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .mobile-bill-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .mobile-tabbar {
+      position: fixed;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      z-index: 28;
+      padding: 10px;
+      border-radius: 20px;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-tabbar a,
+    .mobile-tabbar button {
+      flex: 1;
+      min-width: 0;
+      min-height: 48px;
+      border: 0;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.72);
+      color: var(--ink);
+      text-decoration: none;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill-income {
+      background: rgba(35,122,87,0.12);
+      color: var(--good);
+    }
+
+    .pill-expense {
+      background: rgba(194,65,12,0.12);
+      color: var(--bad);
+    }
+
+    .chart-box {
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(245,239,231,0.94));
+      border: 1px solid rgba(232,220,205,0.9);
+    }
+
+    .bar-area {
+      display: flex;
+      align-items: end;
+      gap: 16px;
+      min-height: 230px;
+      padding-top: 10px;
+    }
+
+    .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .bar-group {
+      flex: 1;
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .bar-stack {
+      width: 100%;
+      height: 205px;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .bar {
+      width: 28px;
+      border-radius: 14px 14px 8px 8px;
+      height: 20px;
+      position: relative;
+    }
+
+    .bar-value {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%);
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .bar.income .bar-value { color: #237a57; }
+    .bar.expense .bar-value { color: #c76b37; }
+    .bar.saving .bar-value { color: #1f6f78; }
+
+    .income { background: linear-gradient(180deg, #44b889, #237a57); }
+    .expense { background: linear-gradient(180deg, #ef9b61, #c76b37); }
+    .saving { background: linear-gradient(180deg, #5f9ea6, #1f6f78); }
+
+    .line-area {
+      height: 220px;
+      margin-top: 16px;
+      border-radius: 18px;
+      background:
+        repeating-linear-gradient(
+          to top,
+          rgba(31,41,51,0.06),
+          rgba(31,41,51,0.06) 1px,
+          transparent 1px,
+          transparent 44px
+        );
+      overflow: hidden;
+    }
+
+    .line-area svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .legend .l1::before { background: #2563eb; }
+    .legend .l2::before { background: #dc2626; }
+    .legend .l3::before { background: #d97706; }
+
+    .year-bar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      min-height: 230px;
+      padding-top: 10px;
+    }
+
+    .year-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .year-toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .year-toolbar select {
+      width: auto;
+      min-width: 120px;
+    }
+
+    .guide-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .guide-step strong {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+      color: #fff;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    .insight-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(232,220,205,0.9);
+      color: var(--ink);
+      line-height: 1.8;
+    }
+
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(31,41,51,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 30;
+    }
+
+    .modal.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: min(760px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      position: relative;
+      border-radius: 30px;
+      padding: 24px;
+      background: rgba(255,252,247,0.98);
+      border: 1px solid rgba(232,220,205,0.95);
+      box-shadow: var(--shadow);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      background: rgba(255,252,247,0.98);
+    }
+
+    .modal-close-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: -40px;
+      pointer-events: none;
+    }
+
+    .close {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      position: static;
+      z-index: 6;
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: rgba(31,41,51,0.06);
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 10px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(31,111,120,0.1);
+      color: var(--accent);
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+      color: #fff;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .account-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .account-summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(232,220,205,0.9);
+    }
+
+    .account-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .account-summary p {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .account-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .empty-box {
+      padding: 22px;
+      border-radius: 18px;
+      text-align: center;
+      background: rgba(255,255,255,0.74);
+      border: 1px dashed rgba(232,220,205,0.95);
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    @media (max-width: 1200px) {
+      .layout,
+      .grid-2,
+      .grid-3,
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 0 8px 88px;
+      }
+
+      .mobile-appbar,
+      .mobile-tabbar {
+        display: flex;
+      }
+
+      h1 {
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      h2 {
+        font-size: 18px;
+        line-height: 1.25;
+      }
+
+      h3 {
+        font-size: 16px;
+        line-height: 1.3;
+      }
+
+      .hero {
+        margin-bottom: 8px;
+      }
+
+      .mobile-appbar,
+      .hero,
+      .hero-box {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      .hero-box,
+      .sidebar,
+      .card {
+        border-radius: 24px;
+      }
+
+      .hero-box {
+        padding: 14px 12px;
+      }
+
+      .hero p {
+        font-size: 13px;
+        margin-top: 6px;
+        line-height: 1.6;
+      }
+
+      .layout,
+      .content,
+      .section,
+      .dashboard-layout,
+      .dashboard-main,
+      .dashboard-side {
+        gap: 14px;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .brand {
+        margin-bottom: 16px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .nav a,
+      .nav button {
+        min-height: 44px;
+        padding: 10px 12px;
+        text-align: center;
+      }
+
+      .sidebar-actions {
+        gap: 8px;
+      }
+
+      .section-head,
+      .chart-head,
+      .year-toolbar,
+      .status-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .section-head .btn,
+      .chart-head .btn,
+      .year-toolbar select {
+        width: 100%;
+      }
+
+      .hero-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        margin-top: 10px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+        min-height: 42px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-grid,
+      .mini-summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .metric-value {
+        font-size: 20px;
+        margin-top: 6px;
+      }
+
+      .status-balance {
+        font-size: 22px;
+      }
+
+      .metric-sub,
+      .metric-label,
+      .section-head p,
+      .soft-note,
+      .legend {
+        font-size: 12px;
+      }
+
+      .account-spotlight {
+        align-items: flex-start;
+        padding: 12px;
+      }
+
+      .avatar-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        font-size: 16px;
+      }
+
+      .status-mini-item,
+      .status-item,
+      .record-log-item,
+      .guide-step,
+      .mini-summary-item {
+        padding: 10px 12px;
+      }
+
+      .records-table {
+        font-size: 13px;
+      }
+
+      .desktop-bill-table {
+        display: none;
+      }
+
+      .mobile-bill-list {
+        display: grid;
+      }
+
+      .records-table th,
+      .records-table td {
+        padding: 10px 8px;
+        white-space: nowrap;
+      }
+
+      .chart-box {
+        padding: 14px;
+      }
+
+      .bar-area,
+      .year-bar-grid {
+        min-height: 200px;
+      }
+
+      .bar-area {
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+
+      .bar-group {
+        min-width: 64px;
+      }
+
+      .bar-value {
+        font-size: 10px;
+      }
+
+      .year-bar-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .line-area {
+        height: 200px;
+      }
+
+      .modal {
+        padding: 10px;
+      }
+
+      .modal-card {
+        width: 100%;
+        max-height: calc(100vh - 20px);
+        border-radius: 24px;
+        padding: 18px 14px 16px;
+      }
+
+      .modal-head {
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tab {
+        width: 100%;
+        text-align: center;
+      }
+
+      .account-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .bar {
+        width: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        padding: 0 8px 92px;
+      }
+
+      h1 {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      h2 {
+        font-size: 16px;
+      }
+
+      .hero-box,
+      .sidebar,
+      .card,
+      .modal-card {
+        border-radius: 20px;
+      }
+
+      .hero-box {
+        padding: 12px 10px 10px;
+      }
+
+      .mobile-appbar {
+        padding: 8px 10px;
+        border-radius: 18px;
+        margin-bottom: 4px;
+      }
+
+      .mobile-appbar,
+      .hero,
+      .hero-box {
+        width: 100%;
+        max-width: none;
+      }
+
+      .mobile-appbar-title strong {
+        font-size: 14px;
+      }
+
+      .mobile-appbar-title span {
+        font-size: 11px;
+      }
+
+      .mobile-tabbar {
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        padding: 8px;
+      }
+
+      .mobile-tabbar a,
+      .mobile-tabbar button {
+        min-height: 44px;
+        font-size: 11px;
+      }
+
+      .hero p {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .hero-actions {
+        gap: 8px;
+        margin-top: 8px;
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        min-height: 40px;
+        padding: 0 12px;
+        font-size: 12px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      .metric-value {
+        font-size: 18px;
+      }
+
+      .section-head {
+        gap: 8px;
+      }
+
+      .nav {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        gap: 10px;
+      }
+
+      .metric-value {
+        font-size: 22px;
+      }
+
+      .metric-sub,
+      .section-head p,
+      .soft-note,
+      .legend {
+        font-size: 12px;
+      }
+
+      .records-table {
+        font-size: 12px;
+      }
+
+      .table-link-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      .year-bar-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-group {
+        min-width: 56px;
+      }
+
+      .bar-value {
+        font-size: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="mobile-appbar glass">
+      <div class="mobile-appbar-title">
+        <strong>个人消费管理</strong>
+        <span id="mobile-appbar-status">未登录</span>
+      </div>
+      <button class="mobile-icon-btn" type="button" data-modal-open="profile-modal">我的</button>
+    </div>
+
+    <section class="hero">
+      <div class="hero-box glass">
+        <div>
+          <h1>个人消费管理与储蓄规划平台</h1>
+          <p>记录收支，管理预算，规划储蓄，查看趋势。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#entry">开始记录</a>
+            <button class="btn btn-secondary" type="button" data-modal-open="profile-modal">个人中心</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <aside class="sidebar glass">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div>
+            <strong>消费管理平台</strong><br>
+            <small>页面结构与模块原型</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a href="#dashboard">首页仪表盘</a>
+          <a href="#entry">记账与导入</a>
+          <a href="#budget">预算与储蓄规划</a>
+          <a href="#analysis">趋势分析</a>
+          <button type="button" data-modal-open="profile-modal">个人中心</button>
+          <button type="button" data-modal-open="records-modal">异常记录</button>
+          <button type="button" data-modal-open="guide-modal">使用指导</button>
+        </nav>
+
+        <div class="sidebar-actions">
+          <button class="btn btn-primary" type="button" data-modal-open="profile-modal">进入个人中心</button>
+          <button class="btn btn-secondary" type="button" data-modal-open="records-modal">查看异常记录</button>
+          <button class="btn btn-secondary" type="button" data-modal-open="guide-modal">查看使用指导</button>
+          <button class="btn btn-secondary" id="export-report-btn" type="button">导出月度报告</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="section" id="dashboard">
+          <div class="section-head">
+            <div>
+              <h2>首页仪表盘</h2>
+              <p id="dashboard-desc">登录后查看真实收支、预算和储蓄数据。</p>
+            </div>
+            <button class="btn btn-primary" type="button" data-modal-open="profile-modal">去登录</button>
+          </div>
+
+          <div class="dashboard-layout">
+            <div class="dashboard-main">
+              <div class="metrics">
+                <div class="card">
+                  <div class="metric-label">今日支出</div>
+                  <div class="metric-value" id="today-expense">¥ 0.00</div>
+                  <div class="metric-sub" id="today-expense-sub">未登录状态</div>
+                </div>
+                <div class="card">
+                  <div class="metric-label">本月收入</div>
+                  <div class="metric-value" id="month-income">¥ 0.00</div>
+                  <div class="metric-sub" id="month-income-sub">未登录状态</div>
+                </div>
+                <div class="card">
+                  <div class="metric-label">本月支出</div>
+                  <div class="metric-value" id="month-expense">¥ 0.00</div>
+                  <div class="metric-sub" id="month-expense-sub">未登录状态</div>
+                </div>
+                <div class="card">
+                  <div class="metric-label">当前结余</div>
+                  <div class="metric-value" id="current-balance">¥ 0.00</div>
+                  <div class="metric-sub" id="current-balance-sub">登录后开始统计</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-side">
+              <div class="status-card">
+                <div class="account-spotlight">
+                  <div class="avatar-badge" id="status-avatar">未</div>
+                  <div>
+                    <strong id="status-user-name">当前未登录</strong>
+                    <p id="status-welcome">登录后这里会显示你的账户状态和同步结果。</p>
+                  </div>
+                </div>
+                <div class="status-top">
+                  <span id="status-time">2026/07/17 09:30</span>
+                  <span id="status-login-text">未登录</span>
+                </div>
+                <div class="status-badge" id="status-badge">个人中心待登录</div>
+                <h3>本月结余概览</h3>
+                <div class="status-balance" id="status-balance">¥ 0.00</div>
+                <div class="progress"><span id="saving-progress-bar"></span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="entry">
+          <div class="section-head">
+            <div>
+              <h2>记账与导入</h2>
+              <p>支持手动录入和账单导入。</p>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3>手动导入</h3>
+              <div class="form-grid">
+                <label>收支类型
+                  <select id="entry-type">
+                    <option>请选择</option>
+                    <option>收入</option>
+                    <option>支出</option>
+                  </select>
+                </label>
+                <label>金额
+                  <input id="entry-amount" type="text" placeholder="请输入金额">
+                </label>
+                <label>分类
+                  <select id="entry-category">
+                    <option>请选择分类</option>
+                    <option>餐饮</option>
+                    <option>交通</option>
+                    <option>购物</option>
+                    <option>工资</option>
+                    <option>住房</option>
+                    <option>娱乐</option>
+                    <option>其他</option>
+                  </select>
+                </label>
+                <label>日期
+                  <input id="entry-date" type="date" value="2026-07-17">
+                </label>
+              </div>
+              <label class="stack">备注
+                <textarea id="entry-note" placeholder="补充说明这笔收入或支出"></textarea>
+              </label>
+              <div class="hero-actions">
+                <button class="btn btn-primary" id="save-entry-btn" type="button">保存记录</button>
+              </div>
+              <div class="notice" id="save-entry-notice"></div>
+            </div>
+
+            <div class="card">
+              <h3>一键导入账单</h3>
+              <div class="stack">
+                <label>选择账单文件
+                  <input id="import-file" type="file" accept=".csv,.txt,.json,.xlsx">
+                </label>
+                <label>导入说明
+                  <textarea id="import-note" placeholder="这里后续可放账单模板、支持格式和导入字段说明"></textarea>
+                </label>
+              </div>
+              <div class="hero-actions">
+                <button class="btn btn-primary" id="import-btn" type="button">开始导入</button>
+                <button class="btn btn-secondary" type="button">查看导入模板</button>
+              </div>
+              <div class="soft-note">导入完成后，系统按账单原始时间写入每条收支记录。</div>
+              <div class="notice" id="import-notice"></div>
+              <div class="mini-summary-grid" id="import-summary">
+                <div class="mini-summary-item">
+                  <span>本次导入</span>
+                  <strong id="import-added-count">0 条</strong>
+                </div>
+                <div class="mini-summary-item">
+                  <span>自动去重</span>
+                  <strong id="import-skipped-count">0 条</strong>
+                </div>
+                <div class="mini-summary-item">
+                  <span>导入状态</span>
+                  <strong id="import-result-status">待导入</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <div>
+                <h3>自动同步账单</h3>
+                <p>绑定同步源后，可手动触发一次同步并查看任务结果。</p>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div>
+                <div class="form-grid">
+                  <label>同步来源
+                    <select id="sync-source-type">
+                      <option value="wechat_merchant">微信商户</option>
+                      <option value="alipay_business">支付宝商家</option>
+                      <option value="bank_template">银行模板</option>
+                    </select>
+                  </label>
+                  <label>同步源名称
+                    <input id="sync-account-name" type="text" placeholder="例如：我的微信同步源">
+                  </label>
+                  <label>App ID
+                    <input id="sync-app-id" type="text" placeholder="可选">
+                  </label>
+                  <label>商户号
+                    <input id="sync-merchant-id" type="text" placeholder="可选">
+                  </label>
+                </div>
+                <label class="stack">接口地址
+                  <input id="sync-api-base-url" type="text" placeholder="例如 https://api.mch.weixin.qq.com">
+                </label>
+                <label class="stack">凭证 JSON
+                  <textarea id="sync-credential-json" placeholder='例如 {"mode":"mock"}'></textarea>
+                </label>
+                <div class="hero-actions">
+                  <button class="btn btn-primary" id="create-sync-account-btn" type="button">保存同步源</button>
+                  <button class="btn btn-secondary" id="refresh-sync-btn" type="button">刷新同步状态</button>
+                </div>
+                <div class="notice" id="sync-notice"></div>
+              </div>
+
+              <div>
+                <div class="mini-summary-grid">
+                  <div class="mini-summary-item">
+                    <span>同步源数量</span>
+                    <strong id="sync-account-count">0</strong>
+                  </div>
+                  <div class="mini-summary-item">
+                    <span>同步任务数</span>
+                    <strong id="sync-job-count">0</strong>
+                  </div>
+                  <div class="mini-summary-item">
+                    <span>同步错误数</span>
+                    <strong id="sync-error-count">0</strong>
+                  </div>
+                </div>
+                <div class="status-list" id="sync-account-list">
+                  <div class="empty-box">登录后可创建同步源并触发同步。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-list" id="sync-job-list">
+              <div class="empty-box">这里会显示最近的同步任务结果。</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <div>
+                <h3>账单明细列表</h3>
+                <p>默认显示前 10 条最新记录，点击进入可查看完整信息。</p>
+              </div>
+              <button class="btn btn-secondary" type="button" data-modal-open="all-bills-modal">详情</button>
+            </div>
+            <div class="filter-grid">
+              <label>搜索
+                <input id="bill-search" type="text" placeholder="分类 / 备注 / 金额">
+              </label>
+              <label>收支类型
+                <select id="bill-filter-type">
+                  <option value="">全部</option>
+                  <option value="收入">收入</option>
+                  <option value="支出">支出</option>
+                </select>
+              </label>
+              <label>分类
+                <select id="bill-filter-category">
+                  <option value="">全部</option>
+                  <option value="餐饮">餐饮</option>
+                  <option value="交通">交通</option>
+                  <option value="购物">购物</option>
+                  <option value="工资">工资</option>
+                  <option value="住房">住房</option>
+                  <option value="娱乐">娱乐</option>
+                  <option value="其他">其他</option>
+                </select>
+              </label>
+              <label>时间范围
+                <select id="bill-filter-range">
+                  <option value="">全部</option>
+                  <option value="7">近 7 天</option>
+                  <option value="30">近 30 天</option>
+                  <option value="365">近 1 年</option>
+                </select>
+              </label>
+            </div>
+            <div class="table-scroll">
+              <table class="records-table desktop-bill-table">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>类型</th>
+                    <th>分类</th>
+                    <th>金额</th>
+                    <th>备注</th>
+                    <th class="action-cell">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="bill-list-body">
+                  <tr>
+                    <td colspan="6" class="empty-box">当前还没有账单记录</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mobile-bill-list" id="mobile-bill-list"></div>
+          </div>
+        </section>
+
+        <section class="section" id="budget">
+          <div class="section-head">
+            <div>
+              <h2>预算与储蓄规划</h2>
+              <p>按需设置预算和储蓄目标。</p>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="card">
+              <h3>预算设置</h3>
+              <div class="stack">
+                <label>每日预算
+                  <input id="daily-budget" type="text" placeholder="可选填写">
+                </label>
+                <label>每月预算
+                  <input id="monthly-budget" type="text" placeholder="可选填写">
+                </label>
+                <label>每年预算
+                  <input id="yearly-budget" type="text" placeholder="可选填写">
+                </label>
+              </div>
+              <div class="hero-actions">
+                <button class="btn btn-primary" id="budget-btn" type="button">生成预算结果</button>
+              </div>
+              <div class="notice" id="budget-notice"></div>
+            </div>
+
+            <div class="card">
+              <h3>储蓄目标</h3>
+              <div class="stack">
+                <label>希望存多少钱
+                  <input id="saving-target" type="text" placeholder="可选填写">
+                </label>
+                <label>计划多久存够
+                  <input id="saving-period" type="text" placeholder="例如 1年 / 12个月 / 365天">
+                </label>
+              </div>
+              <div class="hero-actions">
+                <button class="btn btn-primary" id="saving-btn" type="button">生成储蓄建议</button>
+              </div>
+              <div class="notice" id="saving-notice"></div>
+            </div>
+
+            <div class="card">
+              <h3>系统输出</h3>
+              <div class="status-list">
+                <div class="status-item">
+                  <strong>预算提醒</strong>
+                  <span id="budget-output">设置预算后，系统按日、月、年对比实际支出。</span>
+                </div>
+                <div class="status-item">
+                  <strong>储蓄建议</strong>
+                  <span id="saving-output">填写目标金额和期限后，反推每日、每月或每年的建议额度。</span>
+                </div>
+                <div class="status-item">
+                  <strong>消费评估</strong>
+                  <span id="profile-output">根据账单结构和频率判断消费水平并提供建议。</span>
+                </div>
+              </div>
+              <div class="insight-box" id="budget-insight">生成预算或储蓄建议后，这里会解释超支原因、超出多少，以及优先调整方向。</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="analysis">
+          <div class="section-head">
+            <div>
+              <h2>趋势分析</h2>
+              <p>展示收入、支出、结余和存款变化。</p>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="chart-head">
+                <h3>月度柱状图</h3>
+                <button class="btn btn-secondary" type="button" data-modal-open="year-chart-modal">进入</button>
+              </div>
+              <div class="chart-box">
+                <div class="bar-area" id="recent-bar-area"></div>
+                <div class="legend">
+                  <span class="l1">收入</span>
+                  <span class="l2">支出</span>
+                  <span class="l3">储蓄</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>变化趋势图</h3>
+              <div class="chart-box">
+                <div class="line-area">
+                  <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline id="income-line" fill="none" stroke="#2563eb" stroke-width="4" points="10,190 110,190 210,190 310,190 410,190 510,190 590,190"></polyline>
+                    <polyline id="expense-line" fill="none" stroke="#dc2626" stroke-width="4" points="10,190 110,190 210,190 310,190 410,190 510,190 590,190"></polyline>
+                    <polyline id="saving-line" fill="none" stroke="#d97706" stroke-width="4" points="10,190 110,190 210,190 310,190 410,190 510,190 590,190"></polyline>
+                  </svg>
+                </div>
+                <div class="legend">
+                  <span class="l1">收入趋势</span>
+                  <span class="l2">支出趋势</span>
+                  <span class="l3">存款趋势</span>
+                </div>
+                <div class="insight-box" id="analysis-insight">图表会结合账单数据，提示高支出月份和高频消费分类。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <nav class="mobile-tabbar glass" aria-label="移动端导航">
+    <a href="#dashboard">首页</a>
+    <a href="#entry">账单</a>
+    <a href="#budget">预算</a>
+    <a href="#analysis">图表</a>
+    <button type="button" data-modal-open="profile-modal">我的</button>
+  </nav>
+
+  <section class="modal" id="profile-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>个人中心</h2>
+        </div>
+      </div>
+
+      <div class="tabs" id="profile-auth-tabs">
+        <button class="tab active" type="button" data-modal-open="profile-modal">登录</button>
+        <button class="tab" type="button" data-modal-open="register-modal">注册</button>
+      </div>
+
+      <div class="grid-2" id="profile-auth-view">
+        <div class="card">
+          <h3>账号登录</h3>
+          <div class="stack">
+            <label>账号
+              <input id="login-account" type="text" placeholder="用户名 / 手机号 / 邮箱">
+            </label>
+            <label>密码
+              <input id="login-password" type="password" placeholder="请输入密码">
+            </label>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="login-btn" type="button">立即登录</button>
+            <button class="btn btn-secondary" id="logout-btn" type="button">退出登录</button>
+          </div>
+          <div class="notice" id="login-notice"></div>
+        </div>
+
+        <div class="card">
+          <h3>登录后可查看</h3>
+          <div class="status-list">
+            <div class="status-item">
+              <strong>个人账单</strong>
+              <span>查看和管理自己的收入、支出、分类和账单时间。</span>
+            </div>
+            <div class="status-item">
+              <strong>预算与储蓄</strong>
+              <span>如果设置预算和储蓄目标，系统将生成提醒和建议。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="account-panel hidden" id="profile-account-view">
+        <div class="account-summary">
+          <div class="account-avatar" id="profile-account-avatar">我</div>
+          <div>
+            <strong id="profile-account-name">当前账号</strong>
+            <p id="profile-account-note">你已登录，可以直接管理个人账单、预算和储蓄计划。</p>
+          </div>
+        </div>
+        <div class="account-actions">
+          <button class="btn btn-secondary" id="switch-account-btn" type="button">切换账号</button>
+          <button class="btn btn-primary" id="profile-logout-btn" type="button">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="register-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>注册账号</h2>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab" type="button" data-modal-open="profile-modal">登录</button>
+        <button class="tab active" type="button" data-modal-open="register-modal">注册</button>
+      </div>
+
+      <div class="card">
+        <h3>创建新账号</h3>
+        <div class="form-grid">
+          <label>用户名
+            <input id="register-username" type="text" placeholder="请输入用户名">
+          </label>
+          <label>手机号或邮箱
+            <input id="register-contact" type="text" placeholder="请输入手机号或邮箱">
+          </label>
+          <label>密码
+            <input id="register-password" type="password" placeholder="请输入密码">
+          </label>
+          <label>确认密码
+            <input id="register-password-confirm" type="password" placeholder="请再次输入密码">
+          </label>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="register-btn" type="button">注册账号</button>
+        </div>
+        <div class="notice" id="register-notice"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="records-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>异常记录</h2>
+        </div>
+      </div>
+      <div class="empty-box" id="empty-records-box">当前无异常记录</div>
+      <div class="records-log" id="records-log"></div>
+    </div>
+  </section>
+
+  <section class="modal" id="guide-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>使用指导</h2>
+          <p class="soft-note">快速上手。</p>
+        </div>
+      </div>
+
+      <div class="guide-list">
+        <div class="guide-step">
+          <strong>1</strong>
+          <div>
+            <h3>先进入个人中心</h3>
+            <p class="soft-note">点击个人中心后再选择登录或注册，登录成功后再进入个人数据空间。</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <strong>2</strong>
+          <div>
+            <h3>添加账单</h3>
+            <p class="soft-note">支持手动录入和账单导入。</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <strong>3</strong>
+          <div>
+            <h3>按需设置预算和储蓄目标</h3>
+            <p class="soft-note">按需设置即可。</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <strong>4</strong>
+          <div>
+            <h3>查看图表和导出结果</h3>
+            <p class="soft-note">在趋势分析中查看收入、支出、结余和存款变化，并导出当前月报。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="bill-detail-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>账单详情</h2>
+        </div>
+      </div>
+      <div class="card">
+        <div class="status-list">
+          <div class="status-item">
+            <strong>账单时间</strong>
+            <span class="time-text" id="detail-bill-date">-</span>
+          </div>
+          <div class="status-item">
+            <strong>收支类型</strong>
+            <span id="detail-type">-</span>
+          </div>
+          <div class="status-item">
+            <strong>分类</strong>
+            <span id="detail-category">-</span>
+          </div>
+          <div class="status-item">
+            <strong>金额</strong>
+            <span id="detail-amount">-</span>
+          </div>
+          <div class="status-item">
+            <strong>备注</strong>
+            <span id="detail-note">-</span>
+          </div>
+          <div class="status-item">
+            <strong>记录编号</strong>
+            <span id="detail-id">-</span>
+          </div>
+          <div class="status-item">
+            <strong>写入时间</strong>
+            <span class="time-text" id="detail-created-at">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="all-bills-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>全部收支信息</h2>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-scroll">
+          <table class="records-table">
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>类型</th>
+                <th>分类</th>
+                <th>金额</th>
+                <th>备注</th>
+                <th class="action-cell">操作</th>
+              </tr>
+            </thead>
+            <tbody id="all-bills-body">
+              <tr>
+                <td colspan="6" class="empty-box">当前还没有账单记录</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="year-chart-modal">
+    <div class="modal-card">
+      <div class="modal-close-wrap">
+        <button class="close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-head">
+        <div>
+          <h2>全年月度柱状图</h2>
+        </div>
+      </div>
+      <div class="card">
+        <div class="year-toolbar">
+          <label>选择年份
+            <select id="year-chart-select"></select>
+          </label>
+        </div>
+        <div class="chart-box">
+          <div class="year-bar-grid" id="year-bar-area"></div>
+          <div class="legend">
+            <span class="l1">收入</span>
+            <span class="l2">支出</span>
+            <span class="l3">储蓄</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var API_BASE = (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin) + "/api";
+      var state = {
+        loggedIn: false,
+        token: localStorage.getItem("expensePlannerToken") || "",
+        userName: localStorage.getItem("expensePlannerUser") || "",
+        records: [],
+        errors: [],
+        syncAccounts: [],
+        syncJobs: [],
+        syncTaskErrors: [],
+        importSummary: { addedCount: 0, skippedCount: 0, status: "待导入" },
+        budgets: { daily: 0, monthly: 0, yearly: 0 },
+        savingPlan: { target: 0, days: 0, daily: 0, monthly: 0, yearly: 0 },
+        summary: { todayExpense: 0, monthIncome: 0, monthExpense: 0, balance: 0, totalExpense: 0 },
+        chartSeries: [],
+        selectedRecord: null,
+        selectedChartYear: new Date().getFullYear(),
+        filters: { keyword: "", type: "", category: "", range: "" }
+      };
+
+      function currency(value) {
+        return "¥ " + Number(value || 0).toFixed(2);
+      }
+
+      function parseNumber(value) {
+        if (value === "" || value === undefined || value === null) return 0;
+        var num = Number(String(value).replace(/[^\d.-]/g, ""));
+        return Number.isFinite(num) ? num : NaN;
+      }
+
+      function parsePeriodDays(text) {
+        var value = String(text || "").trim();
+        var matched = value.match(/(\d+(?:\.\d+)?)/);
+        if (!matched) return 0;
+        var num = Number(matched[1]);
+        if (!Number.isFinite(num) || num <= 0) return 0;
+        if (value.indexOf("年") > -1) return Math.round(num * 365);
+        if (value.indexOf("月") > -1) return Math.round(num * 30);
+        if (value.indexOf("天") > -1) return Math.round(num);
+        return Math.round(num);
+      }
+
+      function setNotice(id, message, type) {
+        var node = document.getElementById(id);
+        if (!node) return;
+        if (!message) {
+          node.className = "notice";
+          node.textContent = "";
+          return;
+        }
+        node.className = "notice show " + (type === "bad" ? "notice-bad" : "notice-good");
+        node.textContent = message;
+      }
+
+      function clearHash() {
+        history.replaceState("", document.title, window.location.pathname + window.location.search);
+      }
+
+      function byId(id) {
+        return document.getElementById(id);
+      }
+
+      function setText(id, value) {
+        var node = byId(id);
+        if (node) node.textContent = value;
+      }
+
+      function setStyle(id, prop, value) {
+        var node = byId(id);
+        if (node) node.style[prop] = value;
+      }
+
+
+      function setValue(id, value) {
+        var node = byId(id);
+        if (node) node.value = value;
+      }
+
+      async function apiFetch(path, options) {
+        var config = options || {};
+        var headers = Object.assign({ "Content-Type": "application/json" }, config.headers || {});
+        if (state.token) headers.Authorization = "Bearer " + state.token;
+        var response = await fetch(API_BASE + path, Object.assign({}, config, { headers: headers }));
+        var data = await response.json().catch(function () {
+          return { error: "服务器返回了无法解析的数据" };
+        });
+        if (!response.ok) {
+          throw new Error(data.error || "请求失败");
+        }
+        return data;
+      }
+
+      async function checkBackendHealth() {
+        try {
+          var result = await fetch(API_BASE + "/health");
+          if (!result.ok) throw new Error("health check failed");
+        } catch (error) {
+          setNotice("login-notice", "后端未连接：请先在 server 目录启动 npm start，再刷新这个网页。", "bad");
+        }
+      }
+
+      async function safeLogError(reason) {
+        if (!state.token) return;
+        try {
+          await apiFetch("/errors", {
+            method: "POST",
+            body: JSON.stringify({ reason: reason })
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function readFileText(file) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function () { resolve(String(reader.result || "")); };
+          reader.onerror = function () { reject(new Error("文件读取失败")); };
+          reader.readAsText(file, "utf-8");
+        });
+      }
+
+      function readFileArrayBuffer(file) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function () { resolve(reader.result); };
+          reader.onerror = function () { reject(new Error("文件读取失败")); };
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      function arrayBufferToBase64(buffer) {
+        var bytes = new Uint8Array(buffer);
+        var binary = "";
+        for (var i = 0; i < bytes.byteLength; i += 1) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      }
+
+      function normalizeImportType(raw) {
+        var value = String(raw || "").trim().toLowerCase();
+        if (value === "收入" || value === "income") return "收入";
+        if (value === "支出" || value === "expense") return "支出";
+        return "";
+      }
+
+      function normalizeImportRecord(item, fallbackDate) {
+        var type = normalizeImportType(item.type || item.收支类型 || item.kind);
+        var amount = parseNumber(item.amount || item.金额);
+        var category = String(item.category || item.分类 || "其他").trim() || "其他";
+        var billDate = String(item.billDate || item.date || item.日期 || fallbackDate).trim();
+        var note = String(item.note || item.备注 || "").trim();
+        if (!type || Number.isNaN(amount) || amount <= 0 || !billDate) return null;
+        return {
+          type: type,
+          amount: amount,
+          category: category,
+          billDate: billDate,
+          note: note
+        };
+      }
+
+      function buildRecordKey(record) {
+        return [
+          String(record.type || "").trim(),
+          Number(record.amount || 0).toFixed(2),
+          String(record.category || "").trim(),
+          String(record.billDate || record.date || "").trim(),
+          String(record.note || "").trim()
+        ].join("|");
+      }
+
+      function parseCsvLine(line) {
+        return line.split(",").map(function (cell) { return cell.trim(); });
+      }
+
+      function parseImportText(text, fallbackDate) {
+        var trimmed = text.trim();
+        if (!trimmed) return [];
+
+        if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+          var parsed = JSON.parse(trimmed);
+          var list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.records) ? parsed.records : [parsed]);
+          return list.map(function (item) { return normalizeImportRecord(item, fallbackDate); }).filter(Boolean);
+        }
+
+        var lines = trimmed.split(/\r?\n/).map(function (line) { return line.trim(); }).filter(Boolean);
+        if (!lines.length) return [];
+
+        var header = parseCsvLine(lines[0]).map(function (h) { return h.toLowerCase(); });
+        var hasHeader = header.some(function (h) {
+          return ["type", "amount", "category", "date", "note", "收支类型", "金额", "分类", "日期", "备注"].indexOf(h) > -1;
+        });
+
+        var startIndex = hasHeader ? 1 : 0;
+        var records = [];
+        for (var i = startIndex; i < lines.length; i += 1) {
+          var cols = parseCsvLine(lines[i]);
+          var raw = hasHeader
+            ? {
+                type: cols[header.indexOf("type")] || cols[header.indexOf("收支类型")],
+                amount: cols[header.indexOf("amount")] || cols[header.indexOf("金额")],
+                category: cols[header.indexOf("category")] || cols[header.indexOf("分类")],
+                date: cols[header.indexOf("date")] || cols[header.indexOf("日期")],
+                note: cols[header.indexOf("note")] || cols[header.indexOf("备注")]
+              }
+            : {
+                type: cols[0],
+                amount: cols[1],
+                category: cols[2],
+                date: cols[3],
+                note: cols[4]
+              };
+          var normalized = normalizeImportRecord(raw, fallbackDate);
+          if (normalized) records.push(normalized);
+        }
+        return records;
+      }
+
+      function buildLinePoints(values) {
+        var x = [10, 110, 210, 310, 410, 510, 590];
+        var max = Math.max.apply(null, values.concat([1]));
+        return values.map(function (value, index) {
+          var y = 190 - Math.round((value / max) * 120);
+          return x[index] + "," + Math.max(40, Math.min(190, y));
+        }).join(" ");
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "无";
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        return date.toLocaleString("zh-CN", { hour12: false });
+      }
+
+      function getAvatarText() {
+        if (!state.loggedIn || !state.userName) return "未";
+        return String(state.userName).trim().slice(0, 1).toUpperCase() || "我";
+      }
+
+      function renderProfileCenter() {
+        var authTabs = byId("profile-auth-tabs");
+        var authView = byId("profile-auth-view");
+        var accountView = byId("profile-account-view");
+        if (!authTabs || !authView || !accountView) return;
+
+        if (state.loggedIn) {
+          authTabs.classList.add("hidden");
+          authView.classList.add("hidden");
+          accountView.classList.remove("hidden");
+          setText("profile-account-avatar", getAvatarText());
+          setText("profile-account-name", state.userName || "当前账号");
+          setText("profile-account-note", "你已登录，可直接查看账单、预算、储蓄建议，并管理当前账户。");
+        } else {
+          authTabs.classList.remove("hidden");
+          authView.classList.remove("hidden");
+          accountView.classList.add("hidden");
+        }
+      }
+
+      function sortRecords(records) {
+        return records.slice().sort(function (a, b) {
+          var dateA = String(a.billDate || "");
+          var dateB = String(b.billDate || "");
+          if (dateA !== dateB) {
+            return dateA > dateB ? -1 : 1;
+          }
+          var createdA = String(a.createdAt || "");
+          var createdB = String(b.createdAt || "");
+          if (createdA !== createdB) {
+            return createdA > createdB ? -1 : 1;
+          }
+          return Number(b.id || 0) - Number(a.id || 0);
+        });
+      }
+
+      function getVisibleRecords() {
+        return getFilteredRecords().slice(0, 10);
+      }
+
+      function getFilteredRecords() {
+        var keyword = String(state.filters.keyword || "").trim().toLowerCase();
+        var type = state.filters.type || "";
+        var category = state.filters.category || "";
+        var range = Number(state.filters.range || 0);
+        var now = new Date();
+        return sortRecords(state.records).filter(function (record) {
+          if (type && record.type !== type) return false;
+          if (category && record.category !== category) return false;
+          if (range > 0) {
+            var billDate = new Date(record.billDate);
+            if (!Number.isNaN(billDate.getTime())) {
+              var diff = (now.getTime() - billDate.getTime()) / (1000 * 60 * 60 * 24);
+              if (diff > range) return false;
+            }
+          }
+          if (!keyword) return true;
+          var haystack = [
+            record.billDate,
+            record.type,
+            record.category,
+            record.note,
+            String(record.amount || "")
+          ].join(" ").toLowerCase();
+          return haystack.indexOf(keyword) > -1;
+        });
+      }
+
+      function getTopExpenseCategory() {
+        var categoryTotals = {};
+        state.records.forEach(function (record) {
+          if (record.type !== "支出") return;
+          var key = record.category || "其他";
+          categoryTotals[key] = (categoryTotals[key] || 0) + Number(record.amount || 0);
+        });
+        var topCategory = "";
+        var topAmount = 0;
+        Object.keys(categoryTotals).forEach(function (key) {
+          if (categoryTotals[key] > topAmount) {
+            topAmount = categoryTotals[key];
+            topCategory = key;
+          }
+        });
+        return { category: topCategory, amount: topAmount };
+      }
+
+      function getPeakExpenseMonth() {
+        var series = buildMonthlySeriesForYear(Number(state.selectedChartYear));
+        var peak = null;
+        series.forEach(function (item) {
+          if (!peak || item.expense > peak.expense) peak = item;
+        });
+        if (peak && !peak.label) {
+          peak.label = peak.month + "月";
+        }
+        return peak;
+      }
+
+      function getAvailableChartYears() {
+        var years = {};
+        state.records.forEach(function (record) {
+          var dateText = String(record.billDate || "");
+          var year = Number(dateText.slice(0, 4));
+          if (year) years[year] = true;
+        });
+        var list = Object.keys(years).map(function (year) { return Number(year); }).sort(function (a, b) { return b - a; });
+        if (!list.length) {
+          list.push(new Date().getFullYear());
+        }
+        return list;
+      }
+
+      function buildMonthlySeriesForYear(year) {
+        var series = Array.from({ length: 12 }, function (_, index) {
+          return { month: index + 1, income: 0, expense: 0, saving: 0 };
+        });
+        state.records.forEach(function (record) {
+          var dateText = String(record.billDate || "");
+          var recordYear = Number(dateText.slice(0, 4));
+          var recordMonth = Number(dateText.slice(5, 7));
+          if (recordYear !== year || !recordMonth) return;
+          var item = series[recordMonth - 1];
+          if (record.type === "收入") {
+            item.income += Number(record.amount || 0);
+          } else if (record.type === "支出") {
+            item.expense += Number(record.amount || 0);
+          }
+        });
+        series.forEach(function (item) {
+          item.saving = Math.max(item.income - item.expense, 0);
+        });
+        return series;
+      }
+
+      function getRecentFourMonthSeries() {
+        var now = new Date();
+        var currentYear = now.getFullYear();
+        var currentMonth = now.getMonth() + 1;
+        var fullSeries = buildMonthlySeriesForYear(currentYear);
+        var result = [];
+        for (var offset = 3; offset >= 0; offset -= 1) {
+          var month = currentMonth - offset;
+          var year = currentYear;
+          while (month <= 0) {
+            month += 12;
+            year -= 1;
+          }
+          var item = year === currentYear ? fullSeries[month - 1] : buildMonthlySeriesForYear(year)[month - 1];
+          result.push({
+            month: month,
+            label: month + "月",
+            income: item ? item.income : 0,
+            expense: item ? item.expense : 0,
+            saving: item ? item.saving : 0
+          });
+        }
+        return result;
+      }
+
+      function renderBarChart(containerId, series) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = "";
+        var maxBar = 1;
+        series.forEach(function (item) {
+          maxBar = Math.max(maxBar, item.income, item.expense, item.saving);
+        });
+        series.forEach(function (item) {
+          var group = document.createElement("div");
+          group.className = "bar-group";
+          var incomeHeight = 20 + (item.income / maxBar) * 140;
+          var expenseHeight = 20 + (item.expense / maxBar) * 140;
+          var savingHeight = 20 + (item.saving / maxBar) * 140;
+          var incomeText = currency(item.income || 0);
+          var expenseText = currency(item.expense || 0);
+          var savingText = currency(item.saving || 0);
+          group.innerHTML =
+            "<div class='bar-stack'>" +
+              "<div class='bar income' style='height:" + incomeHeight + "px'><span class='bar-value'>" + escapeHtml(incomeText) + "</span></div>" +
+              "<div class='bar expense' style='height:" + expenseHeight + "px'><span class='bar-value'>" + escapeHtml(expenseText) + "</span></div>" +
+              "<div class='bar saving' style='height:" + savingHeight + "px'><span class='bar-value'>" + escapeHtml(savingText) + "</span></div>" +
+            "</div>" +
+            "<strong>" + escapeHtml(item.label || (item.month + "月")) + "</strong>";
+          container.appendChild(group);
+        });
+      }
+
+      function renderYearChartOptions() {
+        var select = document.getElementById("year-chart-select");
+        if (!select) return;
+        var years = getAvailableChartYears();
+        if (years.indexOf(Number(state.selectedChartYear)) === -1) {
+          state.selectedChartYear = years[0];
+        }
+        select.innerHTML = "";
+        years.forEach(function (year) {
+          var option = document.createElement("option");
+          option.value = String(year);
+          option.textContent = String(year);
+          if (Number(year) === Number(state.selectedChartYear)) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+      }
+
+      function getRecordById(recordId) {
+        var matched = null;
+        for (var i = 0; i < state.records.length; i += 1) {
+          if (Number(state.records[i].id || 0) === Number(recordId || 0)) {
+            matched = state.records[i];
+            break;
+          }
+        }
+        return matched;
+      }
+
+      function openModal(modalId) {
+        var modal = document.getElementById(modalId);
+        if (!modal) return;
+        Array.prototype.forEach.call(document.querySelectorAll(".modal.is-open"), function (item) {
+          item.classList.remove("is-open");
+        });
+        modal.classList.add("is-open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModalDirectly() {
+        Array.prototype.forEach.call(document.querySelectorAll(".modal.is-open"), function (item) {
+          item.classList.remove("is-open");
+        });
+        document.body.style.overflow = "";
+      }
+
+      function openBillDetail(recordId) {
+        var record = getRecordById(recordId);
+        if (!record) return;
+        state.selectedRecord = record;
+        document.getElementById("detail-bill-date").textContent = record.billDate || "无";
+        document.getElementById("detail-type").textContent = record.type || "无";
+        document.getElementById("detail-category").textContent = record.category || "无";
+        document.getElementById("detail-amount").textContent = currency(record.amount || 0);
+        document.getElementById("detail-note").textContent = record.note || "无";
+        document.getElementById("detail-id").textContent = record.id || "无";
+        document.getElementById("detail-created-at").textContent = formatDateTime(record.createdAt);
+        openModal("bill-detail-modal");
+      }
+
+      function renderBillList() {
+        var body = document.getElementById("bill-list-body");
+        var mobileList = document.getElementById("mobile-bill-list");
+        if (!body) return;
+        var visibleRecords = getVisibleRecords();
+        if (!visibleRecords.length) {
+          body.innerHTML = '<tr><td colspan="6" class="empty-box">' + (state.records.length ? "当前筛选条件下暂无记录" : "当前还没有账单记录") + '</td></tr>';
+          if (mobileList) {
+            mobileList.innerHTML = '<div class="empty-box">' + (state.records.length ? "当前筛选条件下暂无记录" : "当前还没有账单记录") + '</div>';
+          }
+          return;
+        }
+        body.innerHTML = "";
+        if (mobileList) {
+          mobileList.innerHTML = "";
+        }
+        visibleRecords.forEach(function (record) {
+          var row = document.createElement("tr");
+          row.innerHTML =
+            "<td>" + escapeHtml(record.billDate || "无") + "</td>" +
+            "<td><span class='pill " + (record.type === "收入" ? "pill-income" : "pill-expense") + "'>" + escapeHtml(record.type || "无") + "</span></td>" +
+            "<td>" + escapeHtml(record.category || "无") + "</td>" +
+            "<td>" + escapeHtml(currency(record.amount)) + "</td>" +
+            "<td>" + escapeHtml(record.note || "无") + "</td>" +
+            "<td class='action-cell'><button class='table-link-btn' type='button' data-record-id='" + Number(record.id || 0) + "'>进入</button></td>";
+          body.appendChild(row);
+
+          if (mobileList) {
+            var card = document.createElement("div");
+            card.className = "mobile-bill-card";
+            card.innerHTML =
+              "<div class='mobile-bill-top'>" +
+                "<div>" +
+                  "<span class='pill " + (record.type === "收入" ? "pill-income" : "pill-expense") + "'>" + escapeHtml(record.type || "无") + "</span>" +
+                  "<div class='mobile-bill-date'>" + escapeHtml(record.billDate || "无") + "</div>" +
+                "</div>" +
+                "<div class='mobile-bill-amount'>" + escapeHtml(currency(record.amount)) + "</div>" +
+              "</div>" +
+              "<div class='mobile-bill-bottom'>" +
+                "<div class='mobile-bill-meta'>" + escapeHtml((record.category || "无") + " · " + (record.note || "无")) + "</div>" +
+                "<button class='table-link-btn' type='button' data-record-id='" + Number(record.id || 0) + "'>详情</button>" +
+              "</div>";
+            mobileList.appendChild(card);
+          }
+        });
+      }
+
+      function renderAllBills() {
+        var body = document.getElementById("all-bills-body");
+        if (!body) return;
+        var records = getFilteredRecords();
+        if (!records.length) {
+          body.innerHTML = '<tr><td colspan="6" class="empty-box">' + (state.records.length ? "当前筛选条件下暂无记录" : "当前还没有账单记录") + '</td></tr>';
+          return;
+        }
+        body.innerHTML = "";
+        records.forEach(function (record) {
+          var row = document.createElement("tr");
+          row.innerHTML =
+            "<td>" + escapeHtml(record.billDate || "无") + "</td>" +
+            "<td><span class='pill " + (record.type === "收入" ? "pill-income" : "pill-expense") + "'>" + escapeHtml(record.type || "无") + "</span></td>" +
+            "<td>" + escapeHtml(record.category || "无") + "</td>" +
+            "<td>" + escapeHtml(currency(record.amount)) + "</td>" +
+            "<td>" + escapeHtml(record.note || "无") + "</td>" +
+            "<td class='action-cell'><button class='table-link-btn' type='button' data-record-id='" + Number(record.id || 0) + "'>进入</button></td>";
+          body.appendChild(row);
+        });
+      }
+
+      function renderErrors() {
+        var emptyBox = document.getElementById("empty-records-box");
+        var log = document.getElementById("records-log");
+        if (!emptyBox || !log) return;
+        log.innerHTML = "";
+        if (!state.errors.length) {
+          emptyBox.style.display = "block";
+          setText("record-status-text", "无错误时为空。");
+          return;
+        }
+        emptyBox.style.display = "none";
+        setText("record-status-text", "当前共有 " + state.errors.length + " 条异常记录。");
+        state.errors.forEach(function (item) {
+          var div = document.createElement("div");
+          div.className = "record-log-item";
+          div.innerHTML = "<strong>错误原因：" + item.errorReason + "</strong><span>错误时间：" + new Date(item.errorTime).toLocaleString("zh-CN", { hour12: false }) + "</span>";
+          log.appendChild(div);
+        });
+      }
+
+      function renderBudgetOutputs() {
+        var budgetOutput = document.getElementById("budget-output");
+        var savingOutput = document.getElementById("saving-output");
+        var profileOutput = document.getElementById("profile-output");
+        var budgetInsight = document.getElementById("budget-insight");
+        if (!budgetOutput || !savingOutput || !profileOutput || !budgetInsight) return;
+        var summary = state.summary;
+        var topExpense = getTopExpenseCategory();
+        var insights = [];
+
+        if (state.budgets.daily || state.budgets.monthly || state.budgets.yearly) {
+          var lines = [];
+          if (state.budgets.daily) {
+            var dailyDiff = state.budgets.daily - summary.todayExpense;
+            lines.push(dailyDiff >= 0 ? "今日预算剩余 " + currency(dailyDiff) : "今日已超预算 " + currency(Math.abs(dailyDiff)));
+            if (dailyDiff < 0) insights.push("今日支出超出日预算 " + currency(Math.abs(dailyDiff)) + "。");
+          }
+          if (state.budgets.monthly) {
+            var monthlyDiff = state.budgets.monthly - summary.monthExpense;
+            lines.push(monthlyDiff >= 0 ? "本月预算剩余 " + currency(monthlyDiff) : "本月已超预算 " + currency(Math.abs(monthlyDiff)));
+            if (monthlyDiff < 0) insights.push("本月支出超出月预算 " + currency(Math.abs(monthlyDiff)) + "。");
+          }
+          if (state.budgets.yearly) {
+            var yearlyDiff = state.budgets.yearly - summary.totalExpense;
+            lines.push(yearlyDiff >= 0 ? "本年预算剩余 " + currency(yearlyDiff) : "本年已超预算 " + currency(Math.abs(yearlyDiff)));
+            if (yearlyDiff < 0) insights.push("累计支出超出年预算 " + currency(Math.abs(yearlyDiff)) + "。");
+          }
+          budgetOutput.textContent = lines.join("；");
+        } else {
+          budgetOutput.textContent = "设置预算后，系统按日、月、年对比实际支出。";
+        }
+
+        if (state.savingPlan.target && state.savingPlan.days) {
+          savingOutput.textContent =
+            "每月约存 " + currency(state.savingPlan.monthly) +
+            "，每日约存 " + currency(state.savingPlan.daily) +
+            "，每年约存 " + currency(state.savingPlan.yearly) + "。";
+        } else {
+          savingOutput.textContent = "填写目标金额和期限后，反推每日、每月或每年的建议额度。";
+        }
+
+        if (!state.records.length) {
+          profileOutput.textContent = "根据账单结构和频率判断消费水平并提供建议。";
+        } else if (summary.totalExpense < 1000) {
+          profileOutput.textContent = "当前消费水平偏低，整体较节制，可继续保持。";
+        } else if (summary.totalExpense < 5000) {
+          profileOutput.textContent = "当前消费水平适中，属于比较均衡的日常消费。";
+        } else {
+          profileOutput.textContent = "当前消费水平偏高，建议重点关注高频支出分类。";
+        }
+
+        if (topExpense.category) {
+          insights.push("当前支出最高的分类是“" + topExpense.category + "”，累计 " + currency(topExpense.amount) + "。");
+        }
+        if (state.savingPlan.target && state.savingPlan.monthly) {
+          insights.push("如按建议执行，每月约存 " + currency(state.savingPlan.monthly) + "。");
+        }
+        budgetInsight.textContent = insights.length ? insights.join(" ") : "生成预算或储蓄建议后，这里会解释超支原因、超出多少，以及优先调整方向。";
+      }
+
+      function renderCharts() {
+        renderBarChart("recent-bar-area", getRecentFourMonthSeries());
+        renderYearChartOptions();
+        renderBarChart("year-bar-area", buildMonthlySeriesForYear(Number(state.selectedChartYear)));
+        var recent = sortRecords(state.records).slice(0, 7).reverse();
+        while (recent.length < 7) recent.unshift({ type: "", amount: 0 });
+        var incomeValues = recent.map(function (item) { return item.type === "收入" ? item.amount : 0; });
+        var expenseValues = recent.map(function (item) { return item.type === "支出" ? item.amount : 0; });
+        var savingValues = recent.map(function (_, index) {
+          var items = recent.slice(0, index + 1);
+          var income = items.reduce(function (sum, item) { return sum + (item.type === "收入" ? item.amount : 0); }, 0);
+          var expense = items.reduce(function (sum, item) { return sum + (item.type === "支出" ? item.amount : 0); }, 0);
+          return Math.max(income - expense, 0);
+        });
+        var incomeLine = byId("income-line");
+        var expenseLine = byId("expense-line");
+        var savingLine = byId("saving-line");
+        if (incomeLine) incomeLine.setAttribute("points", buildLinePoints(incomeValues));
+        if (expenseLine) expenseLine.setAttribute("points", buildLinePoints(expenseValues));
+        if (savingLine) savingLine.setAttribute("points", buildLinePoints(savingValues));
+        renderAnalysisInsight();
+      }
+
+      function renderAnalysisInsight() {
+        var analysisInsight = byId("analysis-insight");
+        if (!analysisInsight) return;
+        if (!state.records.length) {
+          analysisInsight.textContent = "图表会结合账单数据，提示高支出月份和高频消费分类。";
+          return;
+        }
+        var topExpense = getTopExpenseCategory();
+        var peakMonth = getPeakExpenseMonth();
+        var lines = [];
+        if (peakMonth) {
+          lines.push(state.selectedChartYear + " 年 " + peakMonth.label + " 支出最高，为 " + currency(peakMonth.expense) + "。");
+        }
+        if (topExpense.category) {
+          lines.push("当前最花钱的分类是“" + topExpense.category + "”，更适合优先优化。");
+        }
+        analysisInsight.textContent = lines.join(" ");
+      }
+
+      function renderDashboard() {
+        var summary = state.summary;
+        var loggedIn = state.loggedIn;
+        setText("today-expense", currency(summary.todayExpense));
+        setText("month-income", currency(summary.monthIncome));
+        setText("month-expense", currency(summary.monthExpense));
+        setText("current-balance", currency(summary.balance));
+        setText("today-expense-sub", loggedIn ? "今日支出已更新" : "未登录状态");
+        setText("month-income-sub", loggedIn ? "根据数据库账单统计" : "未登录状态");
+        setText("month-expense-sub", loggedIn ? "根据数据库账单统计" : "未登录状态");
+        setText("current-balance-sub", loggedIn ? "总收入减总支出" : "登录后开始统计");
+        setText("dashboard-desc", loggedIn
+          ? "当前数据已同步。"
+          : "登录后查看真实收支、预算和储蓄数据。");
+        setText("status-login-text", loggedIn ? "已登录" : "未登录");
+        setText("status-badge", loggedIn ? (state.userName + " 已登录") : "个人中心待登录");
+        setText("status-balance", currency(summary.balance));
+        setText("status-note", loggedIn
+          ? "当前数据已实时更新。"
+          : "未登录时数据显示为 0。");
+        setText("status-avatar", getAvatarText());
+        setText("status-user-name", loggedIn ? state.userName : "当前未登录");
+        setText("status-welcome", loggedIn ? ("欢迎回来，" + state.userName + "。你的账单、预算和储蓄建议已进入个人空间。") : "登录后这里会显示你的账户状态和同步结果。");
+        setText("mobile-appbar-status", loggedIn ? ("已登录 · " + state.userName) : "未登录");
+        var progress = 0;
+        if (state.savingPlan.target > 0) {
+          progress = Math.max(0, Math.min(100, (summary.balance / state.savingPlan.target) * 100));
+        }
+        setStyle("saving-progress-bar", "width", progress + "%");
+      }
+
+      function renderImportSummary() {
+        setText("import-added-count", state.importSummary.addedCount + " 条");
+        setText("import-skipped-count", state.importSummary.skippedCount + " 条");
+        setText("import-result-status", state.importSummary.status);
+      }
+
+      function renderSyncPanel() {
+        var accountList = byId("sync-account-list");
+        var jobList = byId("sync-job-list");
+        if (!accountList || !jobList) return;
+
+        setText("sync-account-count", String(state.syncAccounts.length || 0));
+        setText("sync-job-count", String(state.syncJobs.length || 0));
+        setText("sync-error-count", String(state.syncTaskErrors.length || 0));
+
+        accountList.innerHTML = "";
+        if (!state.loggedIn) {
+          accountList.innerHTML = '<div class="empty-box">登录后可创建同步源并触发同步。</div>';
+        } else if (!state.syncAccounts.length) {
+          accountList.innerHTML = '<div class="empty-box">当前还没有同步源，先添加一个同步源。</div>';
+        } else {
+          state.syncAccounts.forEach(function (account) {
+            var item = document.createElement("div");
+            item.className = "status-item";
+            item.innerHTML =
+              "<strong>" + escapeHtml(account.account_name || "未命名同步源") + "</strong>" +
+              "<span>来源：" + escapeHtml(account.source_type || "-") + "</span>" +
+              "<span>状态：" + escapeHtml(account.status || "-") + "</span>" +
+              "<span>最近同步：" + escapeHtml(account.last_sync_time ? formatDateTime(account.last_sync_time) : "未同步") + "</span>" +
+              "<div class='hero-actions'><button class='btn btn-primary' type='button' data-sync-account-id='" + Number(account.id || 0) + "'>立即同步</button></div>";
+            accountList.appendChild(item);
+          });
+        }
+
+        jobList.innerHTML = "";
+        if (!state.loggedIn) {
+          jobList.innerHTML = '<div class="empty-box">登录后查看同步任务。</div>';
+        } else if (!state.syncJobs.length) {
+          jobList.innerHTML = '<div class="empty-box">当前还没有同步任务记录。</div>';
+        } else {
+          state.syncJobs.slice(0, 5).forEach(function (job) {
+            var item = document.createElement("div");
+            item.className = "status-item";
+            item.innerHTML =
+              "<strong>" + escapeHtml((job.account_name || "同步源") + " · " + (job.status || "-")) + "</strong>" +
+              "<span>时间范围：" + escapeHtml((job.date_from || "-") + " 至 " + (job.date_to || "-")) + "</span>" +
+              "<span>拉取 " + escapeHtml(String(job.pulled_count || 0)) + " 条，写入 " + escapeHtml(String(job.inserted_count || 0)) + " 条，跳过 " + escapeHtml(String(job.skipped_count || 0)) + " 条</span>" +
+              "<span>完成时间：" + escapeHtml(job.finished_at ? formatDateTime(job.finished_at) : "进行中") + "</span>";
+            jobList.appendChild(item);
+          });
+        }
+      }
+
+      function renderAll() {
+        renderDashboard();
+        renderProfileCenter();
+        renderBillList();
+        renderAllBills();
+        renderBudgetOutputs();
+        renderCharts();
+        renderErrors();
+        renderImportSummary();
+        renderSyncPanel();
+      }
+
+      async function refreshRemoteData() {
+        if (!state.token) {
+          state.loggedIn = false;
+          state.records = [];
+          state.errors = [];
+          state.syncAccounts = [];
+          state.syncJobs = [];
+          state.syncTaskErrors = [];
+          state.importSummary = { addedCount: 0, skippedCount: 0, status: "待导入" };
+          state.budgets = { daily: 0, monthly: 0, yearly: 0 };
+          state.savingPlan = { target: 0, days: 0, daily: 0, monthly: 0, yearly: 0 };
+          state.summary = { todayExpense: 0, monthIncome: 0, monthExpense: 0, balance: 0, totalExpense: 0 };
+          state.chartSeries = [];
+          renderAll();
+          return;
+        }
+        try {
+          var results = await Promise.all([
+            apiFetch("/dashboard"),
+            apiFetch("/bills"),
+            apiFetch("/budgets"),
+            apiFetch("/saving-target"),
+            apiFetch("/errors"),
+            apiFetch("/charts"),
+            apiFetch("/sync/accounts"),
+            apiFetch("/sync/jobs"),
+            apiFetch("/sync/errors")
+          ]);
+          var dashboard = results[0];
+          var bills = results[1];
+          var budgets = results[2];
+          var savingPlan = results[3];
+          var errors = results[4];
+          var charts = results[5];
+          var syncAccounts = results[6];
+          var syncJobs = results[7];
+          var syncErrors = results[8];
+          state.loggedIn = true;
+          state.summary = {
+            todayExpense: dashboard.summary.todayExpense || 0,
+            monthIncome: dashboard.summary.monthIncome || 0,
+            monthExpense: dashboard.summary.monthExpense || 0,
+            balance: dashboard.summary.currentBalance || 0,
+            totalExpense: dashboard.summary.totalExpense || 0
+          };
+          state.records = sortRecords(bills.bills || []);
+          state.budgets = {
+            daily: budgets.budget ? budgets.budget.dailyBudget || 0 : 0,
+            monthly: budgets.budget ? budgets.budget.monthlyBudget || 0 : 0,
+            yearly: budgets.budget ? budgets.budget.yearlyBudget || 0 : 0
+          };
+          state.savingPlan = savingPlan.savingPlan ? {
+            target: savingPlan.savingPlan.targetAmount || 0,
+            days: savingPlan.savingPlan.targetDays || 0,
+            daily: savingPlan.savingPlan.dailySave || 0,
+            monthly: savingPlan.savingPlan.monthlySave || 0,
+            yearly: savingPlan.savingPlan.yearlySave || 0
+          } : { target: 0, days: 0, daily: 0, monthly: 0, yearly: 0 };
+          state.errors = errors.errors || [];
+          state.chartSeries = charts.monthlySeries || [];
+          state.syncAccounts = syncAccounts.accounts || [];
+          state.syncJobs = syncJobs.jobs || [];
+          state.syncTaskErrors = syncErrors.errors || [];
+          var availableYears = getAvailableChartYears();
+          if (availableYears.indexOf(Number(state.selectedChartYear)) === -1) {
+            state.selectedChartYear = availableYears[0];
+          }
+          setValue("daily-budget", state.budgets.daily || "");
+          setValue("monthly-budget", state.budgets.monthly || "");
+          setValue("yearly-budget", state.budgets.yearly || "");
+          setValue("saving-target", state.savingPlan.target || "");
+          setValue("saving-period", state.savingPlan.days ? (state.savingPlan.days + "天") : "");
+        } catch (error) {
+          localStorage.removeItem("expensePlannerToken");
+          localStorage.removeItem("expensePlannerUser");
+          state.token = "";
+          state.userName = "";
+          state.loggedIn = false;
+          setNotice("login-notice", "后端连接失败或登录已失效，请重新登录。", "bad");
+        }
+        renderAll();
+      }
+
+      async function handleRegister() {
+        var username = document.getElementById("register-username").value.trim();
+        var contact = document.getElementById("register-contact").value.trim();
+        var password = document.getElementById("register-password").value;
+        var confirmPassword = document.getElementById("register-password-confirm").value;
+        if (!username || !password) {
+          setNotice("register-notice", "请输入用户名和密码。", "bad");
+          return;
+        }
+        if (password !== confirmPassword) {
+          setNotice("register-notice", "两次输入的密码不一致。", "bad");
+          return;
+        }
+        try {
+          var result = await apiFetch("/register", {
+            method: "POST",
+            body: JSON.stringify({ username: username, contact: contact, password: password })
+          });
+          setNotice("register-notice", result.message + "，现在可以切换到登录。", "good");
+        } catch (error) {
+          setNotice("register-notice", error.message, "bad");
+        }
+      }
+
+      async function handleLogin() {
+        var account = document.getElementById("login-account").value.trim();
+        var password = document.getElementById("login-password").value.trim();
+        if (!account || !password) {
+          setNotice("login-notice", "请输入账号和密码后再登录。", "bad");
+          return;
+        }
+        try {
+          var result = await apiFetch("/login", {
+            method: "POST",
+            body: JSON.stringify({ username: account, password: password })
+          });
+          state.token = result.token;
+          state.userName = result.user.username;
+          localStorage.setItem("expensePlannerToken", state.token);
+          localStorage.setItem("expensePlannerUser", state.userName);
+          setNotice("login-notice", "登录成功，正在同步数据库数据。", "good");
+          await refreshRemoteData();
+          closeModalDirectly();
+          clearHash();
+          location.hash = "#dashboard";
+        } catch (error) {
+          setNotice("login-notice", error.message, "bad");
+        }
+      }
+
+      async function handleLogout() {
+        if (state.token) {
+          try {
+            await apiFetch("/logout", { method: "POST", body: "{}" });
+          } catch (error) {
+            console.error(error);
+          }
+        }
+        state.token = "";
+        state.userName = "";
+        state.loggedIn = false;
+        localStorage.removeItem("expensePlannerToken");
+        localStorage.removeItem("expensePlannerUser");
+        setNotice("login-notice", "已退出登录，页面已恢复未登录状态。", "good");
+        await refreshRemoteData();
+      }
+
+      async function handleSwitchAccount() {
+        if (state.loggedIn) {
+          await handleLogout();
+        }
+        openModal("profile-modal");
+        setNotice("login-notice", "当前已切换到账号登录状态，请输入其他账号。", "good");
+        var accountInput = byId("login-account");
+        var passwordInput = byId("login-password");
+        if (accountInput) accountInput.value = "";
+        if (passwordInput) passwordInput.value = "";
+      }
+
+      async function handleSaveEntry() {
+        if (!state.token) {
+          setNotice("save-entry-notice", "请先登录后再保存账单记录。", "bad");
+          return;
+        }
+        var type = document.getElementById("entry-type").value;
+        var amount = parseNumber(document.getElementById("entry-amount").value);
+        var category = document.getElementById("entry-category").value;
+        var date = document.getElementById("entry-date").value;
+        var note = document.getElementById("entry-note").value.trim();
+        if (type === "请选择" || category === "请选择分类" || !date || Number.isNaN(amount) || amount <= 0) {
+          setNotice("save-entry-notice", "请完整填写收支类型、金额、分类和日期，且金额必须大于 0。", "bad");
+          await safeLogError("保存失败：账单字段缺失或金额格式错误");
+          await refreshRemoteData();
+          return;
+        }
+        try {
+          await apiFetch("/bills", {
+            method: "POST",
+            body: JSON.stringify({
+              type: type,
+              amount: amount,
+              category: category,
+              billDate: date,
+              note: note
+            })
+          });
+          setNotice("save-entry-notice", "账单已保存，明细列表、仪表盘和图表已同步更新。", "good");
+          document.getElementById("entry-type").selectedIndex = 0;
+          document.getElementById("entry-amount").value = "";
+          document.getElementById("entry-category").selectedIndex = 0;
+          document.getElementById("entry-note").value = "";
+          await refreshRemoteData();
+        } catch (error) {
+          setNotice("save-entry-notice", error.message, "bad");
+          await safeLogError("保存失败：" + error.message);
+          await refreshRemoteData();
+        }
+      }
+
+      async function handleImport() {
+        if (!state.token) {
+          setNotice("import-notice", "请先登录后再导入账单。", "bad");
+          return;
+        }
+        var fileInput = document.getElementById("import-file");
+        var file = fileInput.files[0];
+        if (!file) {
+          setNotice("import-notice", "请选择账单文件后再开始导入。", "bad");
+          await safeLogError("导入失败：未选择账单文件");
+          await refreshRemoteData();
+          return;
+        }
+        try {
+          if (file.name.toLowerCase().endsWith(".xlsx")) {
+            var buffer = await readFileArrayBuffer(file);
+            var result = await apiFetch("/import/wechat-xlsx", {
+              method: "POST",
+              body: JSON.stringify({
+                filename: file.name,
+                contentBase64: arrayBufferToBase64(buffer)
+              })
+            });
+            var xlsxMessage = result.message;
+            if (result.skippedCount > 0) {
+              xlsxMessage += "，已自动去重 " + result.skippedCount + " 条重复记录。";
+            }
+            state.importSummary = {
+              addedCount: Number(result.importedCount || result.addedCount || 0),
+              skippedCount: Number(result.skippedCount || 0),
+              status: "导入完成"
+            };
+            setNotice("import-notice", xlsxMessage, "good");
+          } else {
+            var text = await readFileText(file);
+            var fallbackDate = new Date().toISOString().slice(0, 10);
+            var parsedRecords = parseImportText(text, fallbackDate);
+            if (!parsedRecords.length) {
+              throw new Error("文件中没有可导入的有效账单记录");
+            }
+
+            var existingKeys = new Set(
+              state.records.map(function (record) {
+                return buildRecordKey(record);
+              })
+            );
+            var importKeys = new Set();
+            var uniqueRecords = [];
+            var skippedCount = 0;
+
+            for (var i = 0; i < parsedRecords.length; i += 1) {
+              var record = parsedRecords[i];
+              var key = buildRecordKey(record);
+              if (existingKeys.has(key) || importKeys.has(key)) {
+                skippedCount += 1;
+                continue;
+              }
+              importKeys.add(key);
+              uniqueRecords.push(record);
+            }
+
+            if (!uniqueRecords.length) {
+              state.importSummary = {
+                addedCount: 0,
+                skippedCount: skippedCount,
+                status: "全部去重"
+              };
+              setNotice("import-notice", "导入完成，但所有账单都已存在，系统已自动去重。", "good");
+              fileInput.value = "";
+              renderImportSummary();
+              return;
+            }
+
+            for (var j = 0; j < uniqueRecords.length; j += 1) {
+              await apiFetch("/bills", {
+                method: "POST",
+                body: JSON.stringify(uniqueRecords[j])
+              });
+            }
+            var message = "账单导入成功，已写入 " + uniqueRecords.length + " 条数据库记录。";
+            if (skippedCount > 0) {
+              message += " 已自动去重 " + skippedCount + " 条重复记录。";
+            }
+            state.importSummary = {
+              addedCount: uniqueRecords.length,
+              skippedCount: skippedCount,
+              status: "导入完成"
+            };
+            setNotice("import-notice", message, "good");
+          }
+          fileInput.value = "";
+          await refreshRemoteData();
+        } catch (error) {
+          state.importSummary = {
+            addedCount: 0,
+            skippedCount: 0,
+            status: "导入失败"
+          };
+          setNotice("import-notice", error.message, "bad");
+          await safeLogError("导入失败：" + error.message);
+          await refreshRemoteData();
+        }
+      }
+
+      async function handleBudget() {
+        if (!state.token) {
+          setNotice("budget-notice", "请先登录后再生成预算结果。", "bad");
+          return;
+        }
+        var daily = parseNumber(document.getElementById("daily-budget").value);
+        var monthly = parseNumber(document.getElementById("monthly-budget").value);
+        var yearly = parseNumber(document.getElementById("yearly-budget").value);
+        if ((daily || 0) === 0 && (monthly || 0) === 0 && (yearly || 0) === 0) {
+          setNotice("budget-notice", "请至少填写一个预算值。", "bad");
+          await safeLogError("预算生成失败：未填写任何预算值");
+          await refreshRemoteData();
+          return;
+        }
+        try {
+          await apiFetch("/budgets", {
+            method: "POST",
+            body: JSON.stringify({
+              dailyBudget: daily || 0,
+              monthlyBudget: monthly || 0,
+              yearlyBudget: yearly || 0
+            })
+          });
+          setNotice("budget-notice", "预算结果已生成，系统输出区已更新预算对比结论。", "good");
+          await refreshRemoteData();
+        } catch (error) {
+          setNotice("budget-notice", error.message, "bad");
+          await safeLogError("预算生成失败：" + error.message);
+          await refreshRemoteData();
+        }
+      }
+
+      async function handleSaving() {
+        if (!state.token) {
+          setNotice("saving-notice", "请先登录后再生成储蓄建议。", "bad");
+          return;
+        }
+        var target = parseNumber(document.getElementById("saving-target").value);
+        var rawPeriod = document.getElementById("saving-period").value.trim();
+        var days = parsePeriodDays(rawPeriod);
+        if (Number.isNaN(target) || !target || !days) {
+          setNotice("saving-notice", "请正确填写目标金额和期限，例如 1年存12000 或 365天。", "bad");
+          await safeLogError("储蓄建议生成失败：目标金额或期限格式错误");
+          await refreshRemoteData();
+          return;
+        }
+        try {
+          await apiFetch("/saving-target", {
+            method: "POST",
+            body: JSON.stringify({
+              targetAmount: target,
+              targetDays: days,
+              targetPeriod: rawPeriod
+            })
+          });
+          setNotice("saving-notice", "储蓄建议已生成，系统输出区已显示每日、每月和每年建议额度。", "good");
+          await refreshRemoteData();
+        } catch (error) {
+          setNotice("saving-notice", error.message, "bad");
+          await safeLogError("储蓄建议生成失败：" + error.message);
+          await refreshRemoteData();
+        }
+      }
+
+      async function handleCreateSyncAccount() {
+        if (!state.token) {
+          setNotice("sync-notice", "请先登录后再创建同步源。", "bad");
+          return;
+        }
+        var sourceType = byId("sync-source-type").value;
+        var accountName = byId("sync-account-name").value.trim();
+        var appId = byId("sync-app-id").value.trim();
+        var merchantId = byId("sync-merchant-id").value.trim();
+        var apiBaseUrl = byId("sync-api-base-url").value.trim();
+        var rawCredential = byId("sync-credential-json").value.trim();
+        if (!accountName) {
+          setNotice("sync-notice", "请填写同步源名称。", "bad");
+          return;
+        }
+        var credentialJson = {};
+        if (rawCredential) {
+          try {
+            credentialJson = JSON.parse(rawCredential);
+          } catch (error) {
+            setNotice("sync-notice", "凭证 JSON 格式不正确。", "bad");
+            return;
+          }
+        }
+        try {
+          await apiFetch("/sync/accounts", {
+            method: "POST",
+            body: JSON.stringify({
+              sourceType: sourceType,
+              accountName: accountName,
+              appId: appId,
+              merchantId: merchantId,
+              apiBaseUrl: apiBaseUrl,
+              credentialJson: credentialJson
+            })
+          });
+          setNotice("sync-notice", "同步源已保存。", "good");
+          byId("sync-account-name").value = "";
+          byId("sync-app-id").value = "";
+          byId("sync-merchant-id").value = "";
+          byId("sync-api-base-url").value = "";
+          byId("sync-credential-json").value = "";
+          await refreshRemoteData();
+        } catch (error) {
+          setNotice("sync-notice", error.message, "bad");
+        }
+      }
+
+      async function handleRunSyncAccount(accountId) {
+        if (!state.token) {
+          setNotice("sync-notice", "请先登录后再执行同步。", "bad");
+          return;
+        }
+        try {
+          var today = new Date().toISOString().slice(0, 10);
+          var result = await apiFetch("/sync/accounts/" + Number(accountId) + "/run", {
+            method: "POST",
+            body: JSON.stringify({
+              dateFrom: today,
+              dateTo: today
+            })
+          });
+          var summary = result && result.result
+            ? ("同步完成：拉取 " + (result.result.pulledCount || 0) + " 条，写入 " + (result.result.insertedCount || 0) + " 条，跳过 " + (result.result.skippedCount || 0) + " 条。")
+            : "同步完成。";
+          setNotice("sync-notice", summary, "good");
+          await refreshRemoteData();
+        } catch (error) {
+          setNotice("sync-notice", error.message, "bad");
+          await refreshRemoteData();
+        }
+      }
+
+      function handleExport() {
+        var summary = state.summary;
+        var reportDate = new Date().toISOString().slice(0, 10);
+        var lines = [
+          "个人消费管理与储蓄规划平台 - 月度报告",
+          "",
+          "导出日期: " + reportDate,
+          "登录状态: " + (state.loggedIn ? "已登录（" + state.userName + "）" : "未登录"),
+          "",
+          "首页仪表盘",
+          "- 今日支出: " + currency(summary.todayExpense),
+          "- 本月收入: " + currency(summary.monthIncome),
+          "- 本月支出: " + currency(summary.monthExpense),
+          "- 当前结余: " + currency(summary.balance),
+          "",
+          "预算与储蓄",
+          "- 每日预算: " + currency(state.budgets.daily),
+          "- 每月预算: " + currency(state.budgets.monthly),
+          "- 每年预算: " + currency(state.budgets.yearly),
+          "- 储蓄目标: " + currency(state.savingPlan.target),
+          "- 建议每日储蓄: " + currency(state.savingPlan.daily),
+          "- 建议每月储蓄: " + currency(state.savingPlan.monthly),
+          "",
+          "账单明细"
+        ];
+        if (!state.records.length) {
+          lines.push("- 当前还没有账单记录");
+        } else {
+          state.records.forEach(function (record, index) {
+            lines.push(
+              (index + 1) + ". " + record.billDate + " | " + record.type + " | " +
+              record.category + " | " + currency(record.amount) + " | " + (record.note || "无")
+            );
+          });
+        }
+        lines.push("");
+        lines.push("异常记录");
+        if (!state.errors.length) {
+          lines.push("- 当前无异常记录");
+        } else {
+          state.errors.forEach(function (item, index) {
+            lines.push((index + 1) + ". " + item.errorReason + " | " + new Date(item.errorTime).toLocaleString("zh-CN", { hour12: false }));
+          });
+        }
+        var blob = new Blob([lines.join("\r\n")], { type: "text/plain;charset=utf-8" });
+        var link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "个人消费管理与储蓄规划平台-月度报告.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+
+      document.getElementById("register-btn").addEventListener("click", handleRegister);
+      document.getElementById("login-btn").addEventListener("click", handleLogin);
+      document.getElementById("logout-btn").addEventListener("click", handleLogout);
+      document.getElementById("profile-logout-btn").addEventListener("click", handleLogout);
+      document.getElementById("switch-account-btn").addEventListener("click", handleSwitchAccount);
+      document.addEventListener("click", function (event) {
+        var openButton = event.target.closest("[data-modal-open]");
+        if (openButton) {
+          event.preventDefault();
+          openModal(openButton.getAttribute("data-modal-open"));
+          return;
+        }
+        var closeButton = event.target.closest(".close");
+        if (!closeButton) return;
+        event.preventDefault();
+        closeModalDirectly();
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closeModalDirectly();
+      });
+      document.querySelectorAll(".modal").forEach(function (modal) {
+        modal.addEventListener("click", function (event) {
+          if (event.target === modal) closeModalDirectly();
+        });
+      });
+      ["bill-search", "bill-filter-type", "bill-filter-category", "bill-filter-range"].forEach(function (id) {
+        var node = byId(id);
+        if (!node) return;
+        node.addEventListener("input", function () {
+          state.filters.keyword = byId("bill-search") ? byId("bill-search").value : "";
+          state.filters.type = byId("bill-filter-type") ? byId("bill-filter-type").value : "";
+          state.filters.category = byId("bill-filter-category") ? byId("bill-filter-category").value : "";
+          state.filters.range = byId("bill-filter-range") ? byId("bill-filter-range").value : "";
+          renderBillList();
+          renderAllBills();
+        });
+        node.addEventListener("change", function () {
+          state.filters.keyword = byId("bill-search") ? byId("bill-search").value : "";
+          state.filters.type = byId("bill-filter-type") ? byId("bill-filter-type").value : "";
+          state.filters.category = byId("bill-filter-category") ? byId("bill-filter-category").value : "";
+          state.filters.range = byId("bill-filter-range") ? byId("bill-filter-range").value : "";
+          renderBillList();
+          renderAllBills();
+        });
+      });
+      document.getElementById("year-chart-select").addEventListener("change", function (event) {
+        state.selectedChartYear = Number(event.target.value || new Date().getFullYear());
+        renderBarChart("year-bar-area", buildMonthlySeriesForYear(Number(state.selectedChartYear)));
+      });
+      document.getElementById("bill-list-body").addEventListener("click", function (event) {
+        var button = event.target.closest("[data-record-id]");
+        if (!button) return;
+        openBillDetail(Number(button.getAttribute("data-record-id")));
+      });
+      document.getElementById("all-bills-body").addEventListener("click", function (event) {
+        var button = event.target.closest("[data-record-id]");
+        if (!button) return;
+        openBillDetail(Number(button.getAttribute("data-record-id")));
+      });
+      document.getElementById("save-entry-btn").addEventListener("click", handleSaveEntry);
+      document.getElementById("import-btn").addEventListener("click", handleImport);
+      document.getElementById("budget-btn").addEventListener("click", handleBudget);
+      document.getElementById("saving-btn").addEventListener("click", handleSaving);
+      document.getElementById("create-sync-account-btn").addEventListener("click", handleCreateSyncAccount);
+      document.getElementById("refresh-sync-btn").addEventListener("click", refreshRemoteData);
+      document.getElementById("sync-account-list").addEventListener("click", function (event) {
+        var button = event.target.closest("[data-sync-account-id]");
+        if (!button) return;
+        handleRunSyncAccount(Number(button.getAttribute("data-sync-account-id")));
+      });
+      document.getElementById("export-report-btn").addEventListener("click", handleExport);
+
+      checkBackendHealth();
+      refreshRemoteData();
+    })();
+  </script>
+</body>
+</html>
