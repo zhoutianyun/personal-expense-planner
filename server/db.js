@@ -20,6 +20,69 @@ function safeAlter(sql) {
   }
 }
 
+function initBaseSchema() {
+  db.exec(`
+    PRAGMA journal_mode = WAL;
+
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      contact TEXT,
+      password_hash TEXT NOT NULL,
+      auth_token TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS bills (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      amount REAL NOT NULL CHECK(amount > 0),
+      category TEXT NOT NULL,
+      bill_date TEXT NOT NULL,
+      note TEXT,
+      created_at TEXT NOT NULL,
+      import_fingerprint TEXT,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS budgets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      daily_budget REAL DEFAULT 0,
+      monthly_budget REAL DEFAULT 0,
+      yearly_budget REAL DEFAULT 0,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS saving_targets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      target_amount REAL NOT NULL,
+      target_days INTEGER NOT NULL,
+      daily_save REAL NOT NULL,
+      monthly_save REAL NOT NULL,
+      yearly_save REAL NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS error_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      error_reason TEXT NOT NULL,
+      error_time TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_bills_user_fingerprint
+    ON bills(user_id, import_fingerprint)
+    WHERE import_fingerprint IS NOT NULL AND import_fingerprint <> '';
+  `);
+}
+
 function initSyncSchema() {
   db.exec(`
     PRAGMA journal_mode = WAL;
@@ -159,6 +222,7 @@ function initSyncSchema() {
   }
 }
 
+initBaseSchema();
 initSyncSchema();
 
 module.exports = {
